@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: mobile-store
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
