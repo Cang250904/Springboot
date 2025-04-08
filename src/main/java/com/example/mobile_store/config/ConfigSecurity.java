@@ -30,14 +30,20 @@ public class ConfigSecurity {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/checkLogin", "/style/**", "/js/**", "/images/**", "/static/**").permitAll() // Cho phép truy cập không cần xác thực
-                        .anyRequest().authenticated() // Các yêu cầu khác cần xác thực
+                        .requestMatchers("/", "/login", "/checkLogin", "/register", "/style/**", "/js/**", "/images/**", "/static/**", "/banchay", "/api/xemthem/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                        .invalidSessionUrl("/login")
+                )
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form
-                        .loginPage("/login") // Trang đăng nhập tùy chỉnh
-                        .defaultSuccessUrl("/", true) // Chuyển đến trang home.html sau khi đăng nhập thành công
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -59,7 +65,6 @@ public class ConfigSecurity {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        System.out.println(auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder()));
         return auth.build();
     }
 }
